@@ -1,5 +1,13 @@
 package org.example.ticTacToe;
 
 public class PlayingPiece {
-    PieceType pieceType;
+    private final PieceType pieceType;
+
+    protected PlayingPiece(PieceType pieceType) {
+        this.pieceType = pieceType;
+    }
+
+    public PieceType getPieceType() {
+        return pieceType;
+    }
 }

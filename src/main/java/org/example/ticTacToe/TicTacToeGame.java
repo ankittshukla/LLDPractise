@@ -1,80 +1,87 @@
 package org.example.ticTacToe;
 
-import javax.swing.*;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 import java.util.Scanner;
 
 public class TicTacToeGame {
-    Queue<Player> turnQ;
-    Board board;
+    private final Scanner scanner;
+    private List<Player> players;
+    private Board board;
+    private int currentPlayerIndex;
+    private GameStatus gameStatus;
+    private Player winner;
 
-    public void initializeGame(){
-        turnQ = new LinkedList<>();
-        int row = 3;
-        int col = 3;
+    public TicTacToeGame() {
+        this.scanner = new Scanner(System.in);
+    }
+
+    public void start(int row, int col) {
         board = new Board(row, col);
-        PlayingPiece crossPiece = new CrossPiece();
-        Player p1 = new Player("Ank", crossPiece);
-        PlayingPiece knotPiece = new KnotPiece();
-        Player p2 = new Player("Shu", knotPiece);
-        turnQ.offer(p1);
-        turnQ.offer(p2);
+        players = List.of(
+                new Player("Ank", new CrossPiece()),
+                new Player("Shu", new KnotPiece())
+        );
+        currentPlayerIndex = 0;
+        gameStatus = GameStatus.IN_PROGRESS;
+        winner = null;
     }
-    public void playGame(){
-        while(!turnQ.isEmpty() && !board.isBoardFull()){
-            Player currP = turnQ.poll();
-            System.out.println(currP.name + "'s turn");
-            Scanner sc = new Scanner(System.in);
-            int row = Integer.parseInt(sc.nextLine());
-            int col = Integer.parseInt(sc.nextLine());
-            board.addPiece(row, col, currP.playingPiece);
-            if(board.isBoardFull())
-                System.out.println("board is full");
-            if(checkWinningCondition(row, col, currP.playingPiece)){
-                System.out.println("Winner is " + currP.name);
-                break;
+
+    public void playGame() {
+        while (gameStatus == GameStatus.IN_PROGRESS) {
+            Player currentPlayer = players.get(currentPlayerIndex);
+            printBoard();
+            System.out.println(currentPlayer.getName() + "'s turn");
+            int row = readCoordinate("Enter row: ");
+            int col = readCoordinate("Enter col: ");
+            if (!makeMove(currentPlayer, row, col)) {
+                System.out.println("Invalid move");
+                continue;
             }
-            else{
-                turnQ.offer(currP);
+        }
+        printBoard();
+        announceResult();
+    }
+
+    private int readCoordinate(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            if (scanner.hasNextInt()) {
+                return scanner.nextInt();
             }
+            System.out.println("Please enter a number.");
+            scanner.next();
         }
     }
-    public boolean checkWinningCondition(int r, int c, PlayingPiece piece){
-        int rows = board.playingBoard.length;
-        int cols = board.playingBoard[0].length;
-        boolean toReturn = true;
-        for(int i = 0; i < cols; i++){
-            if(board.playingBoard[r][i] != piece)
-                toReturn = false;
+
+    private boolean makeMove(Player currentPlayer, int row, int col) {
+        if (!board.placePiece(row, col, currentPlayer.getPlayingPiece())) {
+            return false;
         }
-        if(toReturn)
+
+        if (board.hasWinner(row, col, currentPlayer.getPlayingPiece())) {
+            winner = currentPlayer;
+            gameStatus = GameStatus.WINNER;
             return true;
-        toReturn = true;
-        for(int i = 0; i < rows; i++){
-            if(board.playingBoard[i][c] != piece)
-                toReturn = false;
         }
-        if(toReturn)
+
+        if (board.isBoardFull()) {
+            gameStatus = GameStatus.DRAW;
             return true;
-        if(r == c) {
-            toReturn = true;
-            for (int i = 0; i < rows; i++) {
-                if (board.playingBoard[i][i] != piece)
-                    toReturn = false;
-            }
-            if(toReturn)
-                return true;
         }
-        if(r + c == rows - 1){
-            toReturn = true;
-            for(int i = 0; i < cols; i++){
-                if(board.playingBoard[i][cols - i - 1] != piece)
-                    toReturn = false;
-            }
-            if(toReturn)
-                return true;
+
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        return true;
+    }
+
+    private void printBoard() {
+        System.out.println(board.render());
+    }
+
+    private void announceResult() {
+        if (gameStatus == GameStatus.WINNER) {
+            System.out.println("Winner is " + winner.getName());
+        } else if (gameStatus == GameStatus.DRAW) {
+            System.out.println("Game ended in a draw");
         }
-        return false;
     }
 }
