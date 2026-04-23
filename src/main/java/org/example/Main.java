@@ -5,6 +5,7 @@ import org.example.elevatorSystem.ElevatorCar;
 import org.example.elevatorSystem.ElevatorSystem;
 import org.example.elevatorSystem.Floor;
 import org.example.elevatorSystem.NearestElevatorAssignStrategy;
+import org.example.snakesAndLaddersGame.Game;
 import org.example.ticTacToe.TicTacToeGame;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,9 @@ public class Main {
 
         //elevatorSystemCalls();
 
-        carRentalSystemCalls();
+        //carRentalSystemCalls();
+
+        snakesAndLaddersGame();
     }
     public static void ticTacToeGameCalls(){
         TicTacToeGame ticTacToeGame = new TicTacToeGame();
@@ -58,5 +61,10 @@ public class Main {
         Bill bill = manageBooking.generateBill(reservation.getId());
         System.out.println("Reservation created: " + reservation.getId());
         System.out.println("Bill amount: " + bill.getTotalAmount());
+    }
+    public static void snakesAndLaddersGame(){
+        Game snakesAndLadders = new Game();
+        snakesAndLadders.initializeGame();
+        snakesAndLadders.playGame();
     }
 }
