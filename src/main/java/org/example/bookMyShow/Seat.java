@@ -4,12 +4,11 @@ import lombok.Getter;
 
 @Getter
 public class Seat {
-    int id;
-    SeatStatus status;
-    SeatCategory category;
-    public Seat(int id, SeatStatus status, SeatCategory seatCategory){
+    private final int id;
+    private final SeatCategory category;
+
+    public Seat(int id, SeatCategory seatCategory){
         this.id = id;
-        this.status = status;
         this.category = seatCategory;
     }
 }
