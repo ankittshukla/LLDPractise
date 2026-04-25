@@ -1,6 +1,10 @@
 package org.example;
 
+import org.example.bookMyShow.*;
+import org.example.bookMyShow.MovieBill;
+import org.example.bookMyShow.MovieUser;
 import org.example.carRentalSystem.*;
+import org.example.carRentalSystem.ManageBooking;
 import org.example.elevatorSystem.ElevatorCar;
 import org.example.elevatorSystem.ElevatorSystem;
 import org.example.elevatorSystem.Floor;
@@ -9,6 +13,7 @@ import org.example.snakesAndLaddersGame.Game;
 import org.example.ticTacToe.TicTacToeGame;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -21,7 +26,9 @@ public class Main {
 
         //carRentalSystemCalls();
 
-        snakesAndLaddersGame();
+        //snakesAndLaddersGame();
+
+        //bookMyShowCalls();
     }
     public static void ticTacToeGameCalls(){
         TicTacToeGame ticTacToeGame = new TicTacToeGame();
@@ -66,5 +73,47 @@ public class Main {
         Game snakesAndLadders = new Game();
         snakesAndLadders.initializeGame();
         snakesAndLadders.playGame();
+    }
+    public static void bookMyShowCalls(){
+        MovieUser movieUser = new MovieUser("Ank", 1);
+        Movie dhuranderMovie = new Movie("Dhurander", 1);
+        LocalDateTime showFrom = LocalDateTime.of(2026, 04, 24, 10, 0, 0);
+        LocalDateTime showTo = LocalDateTime.of(2026, 04, 24, 13, 49, 49);
+        HashMap<SeatCategory, Double> seatCategoryPricing = new HashMap<>();
+        seatCategoryPricing.put(SeatCategory.GOLD, 400.00);
+        seatCategoryPricing.put(SeatCategory.SILVER, 300.00);
+        seatCategoryPricing.put(SeatCategory.ROYAL, 500.00);
+        Screen firstScreen = new Screen();
+        Seat seat = new Seat(1, SeatStatus.AVAILABLE, SeatCategory.GOLD);
+        firstScreen.addSeat(seat);
+        Show morningShow = new Show(showFrom, showTo, dhuranderMovie, seatCategoryPricing, firstScreen);
+        firstScreen.addShow(morningShow);
+        Theatre pvrTheatre = new Theatre();
+        pvrTheatre.addScreen(firstScreen);
+        City lucknowCity = new City();
+        lucknowCity.addTheatre(pvrTheatre);
+        MovieBookingApp movieBookingApp = new MovieBookingApp();
+        movieBookingApp.addCity(lucknowCity);
+        List<City> cityList = movieBookingApp.getCityList();
+        City fetchedCity = cityList.getFirst();
+        List<Movie> movieList = fetchedCity.getMovieList();
+        Movie selectedMovie = movieList.getFirst();
+        System.out.println(selectedMovie.getName());
+        List<Theatre> theatreList = fetchedCity.getTheatreList();
+        Theatre fetchedTheatre = theatreList.getFirst();
+        List<Screen> screenList = fetchedTheatre.getScreenList();
+        Screen screen = screenList.getFirst();
+        List<Show> showList = screen.getShowList();
+        Show show = showList.getFirst();
+        List<Seat> seatList = screen.getSeatList();
+        Seat firstSeat = seatList.getFirst();
+        MovieBookingService movieBookingService = new MovieBookingService();
+        List<Integer> seatIdList = List.of(firstSeat.getId());
+        MovieBill movieBill = new MovieBill();
+        double total = movieBill.calculateTotal(show, seatIdList);
+        System.out.println("bill total - " + total);
+        Payment payment = new Payment(movieBill);
+        payment.markPaid();
+        movieBookingService.createBooking(movieUser, seatIdList, show, screen, fetchedTheatre, payment);
     }
 }
